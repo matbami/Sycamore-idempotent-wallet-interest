@@ -6,6 +6,7 @@ export const seedWallets = async () => {
     userId: "e7c8a0a0-7a11-4db2-a6c2-6dba9dfbb111",
     currency: "NGN",
     balance: 500000,
+    accruedInterest: "0.00",
   } as any);
 
   const receiver = await Wallet.create({
@@ -13,6 +14,8 @@ export const seedWallets = async () => {
     userId: "b1b2c3d4-1111-2222-3333-444455556666",
     currency: "NGN",
     balance: 200000,
+    accruedInterest: "0.00",
+
   } as any);
 
   return { sender, receiver };

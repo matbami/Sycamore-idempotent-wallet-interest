@@ -10,7 +10,6 @@ const env = process.env.NODE_ENV || "development";
 const config = require(path.resolve(__dirname, "../../config/config.js"))[env];
 
 
-// const dbName = env === "test" ? process.env.DB_NAME_TEST : process.env.DB_NAME;
 
 export const sequelize = new Sequelize(
 config.database,

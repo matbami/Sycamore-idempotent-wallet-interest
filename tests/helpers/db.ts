@@ -1,8 +1,9 @@
 import { sequelize } from "../../src/config/database";
 
 export const resetDb = async () => {
-  await sequelize.query(`TRUNCATE TABLE transaction_logs RESTART IDENTITY CASCADE;`);
-  await sequelize.query(`TRUNCATE TABLE wallets RESTART IDENTITY CASCADE;`);
+  // force: true DROPS the tables and recreates them
+  // This ensures new columns like 'accruedInterest' are actually created
+  await sequelize.sync({ force: true });
 };
 
 

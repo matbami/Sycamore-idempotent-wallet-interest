@@ -6,21 +6,28 @@ interface WalletAttributes {
   userId: string;
   balance: number; // stored in kobo as BIGINT
   currency: string;
+  accruedInterest: string;
+
   // status: "ACTIVE" | "SUSPENDED";
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 // Optional fields when creating a Wallet
-interface WalletCreationAttributes
-  extends Optional<WalletAttributes, "id" | "currency"> {}
+interface WalletCreationAttributes extends Optional<
+  WalletAttributes,
+  "id" | "currency"
+> {}
 
-export class Wallet extends Model<WalletAttributes, WalletCreationAttributes>
-  implements WalletAttributes {
+export class Wallet
+  extends Model<WalletAttributes, WalletCreationAttributes>
+  implements WalletAttributes
+{
   declare id: string;
   declare userId: string;
   declare balance: number;
   declare currency: string;
+  declare accruedInterest: string;
   // declare status: "ACTIVE" | "SUSPENDED";
   declare createdAt: Date;
   declare updatedAt: Date;
@@ -49,6 +56,11 @@ Wallet.init(
       allowNull: false,
       defaultValue: "NGN",
     },
+    accruedInterest: {
+      type: DataTypes.DECIMAL(20, 2),
+      allowNull: false,
+      defaultValue: "0.00",
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -67,5 +79,5 @@ Wallet.init(
     modelName: "Wallet",
     tableName: "wallets",
     underscored: true,
-  }
+  },
 );

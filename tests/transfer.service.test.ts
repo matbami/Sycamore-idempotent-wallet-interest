@@ -6,10 +6,19 @@ import { TransactionLog } from "../src/models/transactionlog";
 // import { Ledger } from "../models/Ledger";
 
 // IMPORTANT: mock redis for tests (so tests don't depend on redis server)
+const mockRedis = new Map(); // Simple store for the test session
+
 jest.mock("../src/repository/redis.repo", () => ({
-  IdempotencyRepo: {
-    get: jest.fn(async () => null),
-    set: jest.fn(async () => true),
+//   IdempotencyRepo: {
+//     get: jest.fn(async () => null),
+//     set: jest.fn(async () => true),
+//   },
+IdempotencyRepo: {
+    get: jest.fn(async (key) => mockRedis.get(key) || null),
+    set: jest.fn(async (key, value) => {
+      mockRedis.set(key, value);
+      return true;
+    }),
   },
 }));
 
