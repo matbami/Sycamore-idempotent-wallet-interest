@@ -2,11 +2,10 @@ import { TransferService } from "../src/services/transfer.service";
 import { resetDb } from "./helpers/db";
 import { seedWallets } from "./helpers/seed";
 import { Wallet } from "../src/models/wallets";
-import { TransactionLog } from "../src/models/transactionLog";
-// import { Ledger } from "../models/Ledger";
+import { TransactionLog } from "../src/models/transactionLog"
 
-// IMPORTANT: mock redis for tests (so tests don't depend on redis server)
-const mockRedis = new Map(); // Simple store for the test session
+// mock redis for tests 
+const mockRedis = new Map(); 
 
 jest.mock("../src/repository/redis.repo", () => ({
 
@@ -43,9 +42,9 @@ describe("TransferService", () => {
     expect(Number(sender?.balance)).toBe(499000);
     expect(Number(receiver?.balance)).toBe(201000);
 
-    const txLog = await TransactionLog.findOne({ where: { idempotencyKey } });
-    expect(txLog).toBeTruthy();
-    expect(txLog?.status).toBe("SUCCESS");
+    const transactionLog = await TransactionLog.findOne({ where: { idempotencyKey } });
+    expect(transactionLog).toBeTruthy();
+    expect(transactionLog?.status).toBe("SUCCESS");
 
 
   });
@@ -84,9 +83,8 @@ describe("TransferService", () => {
     const idempotencyKey1 = "race-key-1";
     const idempotencyKey2 = "race-key-2";
 
-    // Sender has 500000
-    // We'll try to spend 400000 twice concurrently -> only one should succeed
-    const [r1, r2] = await Promise.allSettled([
+    //Sender has 500000,  try to spend 400000 twice concurrently -> only one should succeed
+     await Promise.allSettled([
       TransferService.transfer({
         senderWalletId: "3a7c6c2c-8a4f-4c1b-9c4b-3e6e2d3f3c01",
         recipientWalletId: "cfd2f4d1-7c90-4b1d-9d8a-3f0d7e1a2222",

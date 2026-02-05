@@ -31,12 +31,12 @@ export const TransferService = {
 
     //DB-level transaction
     const result = await sequelize.transaction(async (t) => {
-      let pendingLog;
+      let pendingTransactionLog;
 
       try {
         // Create PENDING log FIRST
 
-        pendingLog = await TransactionLogRepo.create(
+        pendingTransactionLog = await TransactionLogRepo.create(
           {
             idempotencyKey,
             senderId: senderWalletId,
@@ -48,13 +48,15 @@ export const TransferService = {
         );
       } catch (err: any) {
         if (err?.name === "SequelizeUniqueConstraintError") {
-          const existing =
+          const existingTransaction =
             await TransactionLogRepo.findByIdempotencyKey(idempotencyKey);
-          if (!existing) throw new Error("Idempotency conflict detected.");
+          if (!existingTransaction) throw new Error("Idempotency conflict");
 
           // If transaction already finished, return the result
-          if (existing.status !== "PENDING") return existing;
-          pendingLog = existing;
+          if (existingTransaction.status !== "PENDING") {
+            return existingTransaction;
+          }
+          pendingTransactionLog = existingTransaction;
         } else {
           throw err;
         }
@@ -65,43 +67,65 @@ export const TransferService = {
 
       if (!fromWallet || !toWallet) {
         await TransactionLogRepo.markAsFailed(
-          pendingLog.id,
+          pendingTransactionLog.id,
           "Wallet not found",
           t,
         );
-        return pendingLog;
+        return pendingTransactionLog;
       }
 
       // update wallets
-      const bigAmount = new Big(amount);
+      const convertedAmount = new Big(amount);
       const senderBalance = new Big(fromWallet.balance);
       const receiverBalance = new Big(toWallet.balance);
 
-      if (senderBalance.lt(bigAmount)) {
+      if (senderBalance.lt(convertedAmount)) {
         await TransactionLogRepo.markAsFailed(
-          pendingLog.id,
+          pendingTransactionLog.id,
           "Insufficient balance",
           t,
         );
-        return (await TransactionLogRepo.findById(pendingLog.id, t))!;
+        const failedTransaction = await TransactionLogRepo.findById(
+          pendingTransactionLog.id,
+          t,
+        );
+
+        if (!failedTransaction) {
+          throw new Error("Transaction log missing");
+        }
+
+        return failedTransaction;
       }
 
       //update accounts
-      const newSenderBalance = senderBalance.minus(bigAmount).toFixed(2);
-      const newReceiverBalance = receiverBalance.plus(bigAmount).toFixed(2);
+      const newSenderBalance = senderBalance.minus(convertedAmount).toFixed(2);
+      const newReceiverBalance = receiverBalance
+        .plus(convertedAmount)
+        .toFixed(2);
 
       await WalletRepo.updateBalance(senderWalletId, newSenderBalance, t);
       await WalletRepo.updateBalance(recipientWalletId, newReceiverBalance, t);
 
       // Finalize status
-      await TransactionLogRepo.updateStatus(pendingLog.id, "SUCCESS", t);
+      await TransactionLogRepo.updateStatus(
+        pendingTransactionLog.id,
+        "SUCCESS",
+        t,
+      );
 
-      // Fresh fetch to ensure all hooks/timestamps are current
-      const finalLog = await TransactionLogRepo.findById(pendingLog.id, t);
-      return finalLog!;
+      const finalTransactionLog = await TransactionLogRepo.findById(
+        pendingTransactionLog.id,
+        t,
+      );
+
+      if (!finalTransactionLog) {
+        throw new Error("Transaction log missing");
+      }
+
+      return finalTransactionLog;
     });
 
-    // Update Redis 
+    // Update Redis
     await IdempotencyRepo.set(idempotencyKey, {
       transactionLogId: result.id,
       status: result.status,
