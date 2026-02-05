@@ -5,8 +5,8 @@ interface TransactionLogAttributes {
   id: string;
   idempotencyKey: string;
   senderId: string;
-  recepientId: string;
-  amount: number; // use BIGINT in DB, but number here in TS
+  recipientId: string;
+  amount: string;
   status: "PENDING" | "SUCCESS" | "FAILED";
   failureReason?: string;
   createdAt?: Date;
@@ -14,17 +14,20 @@ interface TransactionLogAttributes {
 }
 
 //Optional fields when creating a new TransactionLog
-export interface TransactionLogCreationAttributes
-  extends Optional<TransactionLogAttributes, "id" | "status" | "failureReason"> {}
+export interface TransactionLogCreationAttributes extends Optional<
+  TransactionLogAttributes,
+  "id" | "failureReason"
+> {}
 
 export class TransactionLog
   extends Model<TransactionLogAttributes, TransactionLogCreationAttributes>
-  implements TransactionLogAttributes {
+  implements TransactionLogAttributes
+{
   declare id: string;
   declare idempotencyKey: string;
   declare senderId: string;
-  declare recepientId: string;
-  declare amount: number;
+  declare recipientId: string;
+  declare amount: string;
   declare status: "PENDING" | "SUCCESS" | "FAILED";
   declare failureReason?: string;
   declare createdAt: Date;
@@ -48,10 +51,10 @@ TransactionLog.init(
       allowNull: false,
       field: "senderId",
     },
-    recepientId: {
+    recipientId: {
       type: DataTypes.UUID,
       allowNull: false,
-      field: "recepientId",
+      field: "recipientId",
     },
     amount: {
       type: DataTypes.DECIMAL,
@@ -84,6 +87,5 @@ TransactionLog.init(
     sequelize,
     modelName: "TransactionLog",
     tableName: "transaction_logs",
-    underscored: true,
-  }
+  },
 );

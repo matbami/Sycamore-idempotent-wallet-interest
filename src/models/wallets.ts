@@ -4,26 +4,29 @@ import { sequelize } from "../config/database";
 interface WalletAttributes {
   id: string;
   userId: string;
-  balance: number; // stored in kobo as BIGINT
+  balance: string; 
   currency: string;
-  // status: "ACTIVE" | "SUSPENDED";
+  accruedInterest: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 // Optional fields when creating a Wallet
-interface WalletCreationAttributes
-  extends Optional<WalletAttributes, "id" | "currency"> {}
+interface WalletCreationAttributes extends Optional<
+  WalletAttributes,
+  "id" | "currency"
+> {}
 
-export class Wallet extends Model<WalletAttributes, WalletCreationAttributes>
-  implements WalletAttributes {
+export class Wallet
+  extends Model<WalletAttributes, WalletCreationAttributes>
+  implements WalletAttributes
+{
   declare id: string;
   declare userId: string;
-  declare balance: number;
+  declare balance: string;
   declare currency: string;
-  // declare status: "ACTIVE" | "SUSPENDED";
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare accruedInterest: string;
+
 }
 
 Wallet.init(
@@ -40,32 +43,39 @@ Wallet.init(
       field: "userId",
     },
     balance: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(20,2),
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: "0.00",
     },
     currency: {
       type: DataTypes.STRING(3),
       allowNull: false,
       defaultValue: "NGN",
     },
+    accruedInterest: {
+      type: DataTypes.DECIMAL(20, 2),
+      allowNull: false,
+      defaultValue: "0.00", 
+      field: "accruedInterest",
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
       field: "createdAt",
+     
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
       field: "updatedAt",
+   
     },
   },
   {
     sequelize,
     modelName: "Wallet",
     tableName: "wallets",
-    underscored: true,
-  }
+  },
 );

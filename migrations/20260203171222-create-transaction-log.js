@@ -23,7 +23,7 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      recepientId: {
+      recipientId: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -57,6 +57,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("TransactionLogs");
+    await queryInterface.dropTable("transaction_logs");
   },
 };
