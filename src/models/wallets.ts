@@ -4,11 +4,9 @@ import { sequelize } from "../config/database";
 interface WalletAttributes {
   id: string;
   userId: string;
-  balance: number; // stored in kobo as BIGINT
+  balance: string; 
   currency: string;
   accruedInterest: string;
-
-  // status: "ACTIVE" | "SUSPENDED";
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -25,12 +23,10 @@ export class Wallet
 {
   declare id: string;
   declare userId: string;
-  declare balance: number;
+  declare balance: string;
   declare currency: string;
   declare accruedInterest: string;
-  // declare status: "ACTIVE" | "SUSPENDED";
-  declare createdAt: Date;
-  declare updatedAt: Date;
+
 }
 
 Wallet.init(
@@ -47,9 +43,9 @@ Wallet.init(
       field: "userId",
     },
     balance: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(20,2),
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: "0.00",
     },
     currency: {
       type: DataTypes.STRING(3),
@@ -59,25 +55,27 @@ Wallet.init(
     accruedInterest: {
       type: DataTypes.DECIMAL(20, 2),
       allowNull: false,
-      defaultValue: "0.00",
+      defaultValue: "0.00", 
+      field: "accruedInterest",
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
       field: "createdAt",
+     
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
       field: "updatedAt",
+   
     },
   },
   {
     sequelize,
     modelName: "Wallet",
     tableName: "wallets",
-    underscored: true,
   },
 );

@@ -4,9 +4,9 @@ import { sequelize } from "../config/database";
 export class InterestLedger extends Model {
   declare id: string;
   declare walletId: string;
-
   declare accruedOn: Date;
 
+  // DECIMAL values are returned as strings to preserve precision
   declare interestAmount: string;
   declare rateUsed: string;
 
@@ -18,8 +18,7 @@ InterestLedger.init(
   {
     id: {
       type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
-
+      defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
 
@@ -34,7 +33,7 @@ InterestLedger.init(
     },
 
     interestAmount: {
-      type: DataTypes.DECIMAL(20, 2),
+      type: DataTypes.DECIMAL(20, 4),
       allowNull: false,
     },
 
@@ -44,13 +43,20 @@ InterestLedger.init(
       defaultValue: "27.50",
     },
 
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     sequelize,
     tableName: "interest_ledger",
     modelName: "InterestLedger",
-    timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
-  }
+  },
 );

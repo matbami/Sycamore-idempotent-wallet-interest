@@ -4,28 +4,26 @@ import path from "path";
 
 dotenv.config();
 
-
 const env = process.env.NODE_ENV || "development";
 
-const config = require(path.resolve(__dirname, "../../config/config.js"))[env];
+const { database, username, password, host, port } = require(
+  path.resolve(__dirname, "../../config/config.js"),
+)[env];
 
+export const sequelize = new Sequelize(database, username, password, {
+  host,
+  port: Number(port),
+  dialect: "postgres",
+  logging: false,
 
-
-export const sequelize = new Sequelize(
-config.database,
-  config.username,
-  config.password,
-  {
-    host: config.host,
-    port: Number(config.port),
-    dialect: "postgres",
-    logging: false,
-  }
-);
+  define: {
+    underscored: true,
+  },
+});
 export const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log("DB connected", config.database);
+    console.log("DB connected successfully", database);
   } catch (err) {
     console.error("DB connection failed:", err);
     process.exit(1);

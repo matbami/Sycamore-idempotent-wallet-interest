@@ -37,12 +37,6 @@ module.exports = {
         defaultValue: "27.50",
       },
 
-      status: {
-        type: Sequelize.ENUM("SUCCESS", "FAILED"),
-        allowNull: false,
-        defaultValue: "SUCCESS",
-      },
-
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

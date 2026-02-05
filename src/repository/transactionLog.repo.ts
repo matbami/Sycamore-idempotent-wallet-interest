@@ -1,4 +1,4 @@
-import { TransactionLog, TransactionLogCreationAttributes } from "../models/transactionlog";
+import { TransactionLog, TransactionLogCreationAttributes } from "../models/transactionLog";
 import { Transaction } from "sequelize";
 
 export const TransactionLogRepo = {
@@ -19,7 +19,7 @@ async findById(id: string, t?: Transaction) {
     return TransactionLog.update({ status }, { where: { id }, transaction: t });
   },
 
-  async markFailed(id: string, reason: string, t: Transaction) {
+  async markAsFailed(id: string, reason: string, t: Transaction) {
     return TransactionLog.update(
       { status: "FAILED", failureReason: reason },
       { where: { id }, transaction: t }

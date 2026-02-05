@@ -3,13 +3,17 @@ import { Transaction } from "sequelize";
 
 export const WalletRepo = {
   async findById(id: string, t?: Transaction) {
-    return Wallet.findByPk(id, { transaction: t, lock: t?.LOCK.UPDATE });
+    // LOCK.UPDATE is crucial for "Double Spend" requirement
+    return Wallet.findByPk(id, {
+      transaction: t,
+      lock: t ? t.LOCK.UPDATE : false,
+    });
   },
 
-  async updateBalance(id: string, newBalance: number, t: Transaction) {
+  async updateBalance(id: string, newBalance: string, t: Transaction) {
     return Wallet.update(
       { balance: newBalance },
-      { where: { id }, transaction: t }
+      { where: { id }, transaction: t },
     );
   },
 };

@@ -14,7 +14,7 @@ describe('InterestService Simplified', () => {
     
     // Set a clean balance for easy testing: 100,000
     // Interest = (100,000 * 0.275) / 365 = 75.3424...
-    await Wallet.update({ balance: 100000 }, { where: { id: walletId } });
+    await Wallet.update({ balance: "100000" }, { where: { id: walletId } });
   });
 
   it('accrues interest for a normal year', async () => {
